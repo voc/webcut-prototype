@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>HTML5 Video plug-in</title>
+    <script src="js/jquery.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/jquery.videoControls.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="js/application.js"></script>
+    <link type="text/css" href="css/main.css" rel="stylesheet" >
+    <link type="text/css" href="css/jquery.videoControls.css" rel="stylesheet" >
+    <script>
+    
+    function test1(){
+      $("#cutmarks").text("in: "+$("#webcut")[0].cutin+" out: "+$("#webcut")[0].cutout);
+      window.setTimeout('test1()',500);
+      return false;
+    }
+    window.setTimeout("test1()",1000);
+    </script>
+</head>
+
+<body>
+  <h2>C3VOC webcut Prototype</h2>
+  <video src="http://live.ber.c3voc.de/releases/cr206/cr206-uncut.h264.mp4" data-framerate="25" width="50%" id="webcut">
+  </video>
+  <a href='#' onclick='test1();'>Submit Cutmarks</a>
+  <p id="cutmarks"></p>
+
+  <p>based on work By <a href="http://stefangoodchild.com">Stefan Goodchild</a></p>
+</body>
+</html>
