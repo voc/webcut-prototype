@@ -1,9 +1,9 @@
 jQuery.fn.videoControls = function() {
-  
+
   var instance = {};
-  
+
   create = function(src) {
-    
+
     // Base settings
 
 		instance.playerj = $(src);
@@ -17,10 +17,10 @@ jQuery.fn.videoControls = function() {
     console.log('instance: ', instance);
 
     // DOM Elements
-    
+
     instance.playerj.wrap('<div class="video_player"/>');
     instance.wrapper = instance.playerj.parent();
-    
+
     instance.wrapper
 		.append('<div class="playbar"><div class="play_head"></div><div class="track_bg"></div><div class="track_loaded"></div></div>');
     instance.wrapper.append('<table><tr>'+
@@ -37,32 +37,32 @@ jQuery.fn.videoControls = function() {
     instance.player.addEventListener("timeupdate", function() {
       display_timecode();
     }, false);
-    
+
     instance.player.addEventListener("loadedmetadata", function() {
       instance.wrapper.find('.playbar').css('width', instance.playerj.width()+'px');
       instance.playbar_width = parseInt(instance.wrapper.find('.playbar').css('width'), 10);
       instance.playhead_width = parseInt(instance.wrapper.find('.play_head').css('width'), 10);
-      instance.player.cutout=instance.player.duration*instance.frame_rate;
+      instance.player.cutout=Math.floor(instance.player.duration*instance.frame_rate);
     }, false);
-    
+
     instance.player.addEventListener("progress", function(e) {
       loading(e);
     }, false);
 
     // Setup Controls
-    
+
     instance.wrapper.find('.button.pp').click(function(){ playpause(); return false; });
     instance.wrapper.find('.button.stepRw').click(function(){ instance.player.currentTime = instance.player.currentTime - 1; return false; });
     instance.wrapper.find('.button.stepFf').click(function(){ instance.player.currentTime = instance.player.currentTime + 1; return false; });
-    
+
     instance.wrapper.find('.button.rw').mousedown(function(){ seek(-6); return false;});
     instance.wrapper.find('.button.rw').mouseup(function(){ seek(1); return false;});
     instance.wrapper.find('.button.ff').mousedown(function(){ seek(6); return false;});
     instance.wrapper.find('.button.ff').mouseup(function(){ seek(1); return false;});
-    
+
     instance.wrapper.find('.play_head').mousedown(function(e){ playHeadDrag(e); return false; });
     instance.wrapper.find('.track_loaded').mousedown(function(e){ playHeadDrag(e); return false;});
-    
+
     // Control Bar
 
     instance.wrapper.find('.track_loaded').mousedown(function(e) {
@@ -70,14 +70,14 @@ jQuery.fn.videoControls = function() {
     }).click(function(e) {
       position_to_time(e);
     });
-    
+
     activateInput(instance.wrapper.find('.timerInput'), instance.player);
     activateKeyControl();
-		
+
   };
 
   // Control Methods
-  
+
   var playpause = function() {
     if (instance.playing) {
       stopMovie();
@@ -87,21 +87,21 @@ jQuery.fn.videoControls = function() {
       instance.playing = true;
     }
   };
-  
+
   var playMovie = function() {
-    instance.player.play();       
+    instance.player.play();
     instance.wrapper.find('.button.pp').removeClass('play').addClass('pause').text('Pause');
   };
-  
+
   var stopMovie = function() {
     instance.player.pause();
     instance.wrapper.find('.button.pp').removeClass('pause').addClass('play').text('Play');
   };
-  
+
   var seek = function(speed) {
-    if (!instance.playing) { 
+    if (!instance.playing) {
       instance.stopAgain = true;
-      playMovie(); 
+      playMovie();
     };
     instance.player.playbackRate = speed;
     if (instance.stopAgain && speed == 1) {
@@ -109,9 +109,9 @@ jQuery.fn.videoControls = function() {
       stopMovie();
     };
   };
-  
+
   // Keyboard Control
-  
+
   var activateKeyControl = function() {
     $(document).keydown(function(e) {
       if (e.keyCode == 32) { // Space Bar
@@ -145,26 +145,26 @@ jQuery.fn.videoControls = function() {
         instance.player.currentTime = instance.player.currentTime - 1;
         return false;
       }
-      
+
     });
   };
-  
+
   // Drag Playhead
-  
+
   var playHead = {
    mdown:false
   };
-  
+
   var playHeadDrag = function(e) {
    playHead.mdown = true;
-   if (instance.playing) { 
+   if (instance.playing) {
      instance.startAgain = true;
      stopMovie();
    };
   };
-  
+
   $(document).mouseup(function(e) {
-   if (playHead.mdown) { 
+   if (playHead.mdown) {
      playHead.mdown = false;
      if (instance.startAgain) {
        instance.startAgain = false;
@@ -172,23 +172,23 @@ jQuery.fn.videoControls = function() {
      };
    }
   });
-  
+
   $(document).mousemove(function(e) {
     if (playHead.mdown) {
       position_to_time(e);
     }
   });
-  
+
   // Timecode Display
-  
+
   var display_timecode = function() {
     instance.wrapper.find('.timer').text(formatTimer(instance.player.currentTime));
     instance.playhead = Math.round((instance.player.currentTime / instance.player.duration) * (instance.playbar_width));
     instance.wrapper.find('.play_head').css('left', instance.playhead-(instance.playhead_width/2)+'px');
   };
-  
+
   // Timecode Control
-  
+
    var activateInput = function(o, framerate) {
      o.keydown(function(e){
         if (e.keyCode === 13) {
@@ -217,35 +217,35 @@ jQuery.fn.videoControls = function() {
          return false;
        }
      }).keyup(function(){return false;});
-   };   
-  
+   };
+
   // Loaders
-  
+
   var loading = function(e) {
 
    if (instance.player.buffered.end(0) >= instance.player.duration) {
      instance.wrapper.find('.track_loaded').css('width', '100%');
-   } else {          
+   } else {
      var pl = (instance.player.buffered.end(0)/instance.player.duration)*100;
      instance.wrapper.find('.track_loaded').css('width', pl+'%');
    }
   };
-  
+
   // Utilities
-  
+
   var position_to_time = function(e) {
     var pos;
     var clickx = e.clientX-instance.playerj.offset().left;
-    if (clickx >= (instance.playbar_width)) { 
-      pos = instance.player.duration;  
+    if (clickx >= (instance.playbar_width)) {
+      pos = instance.player.duration;
     } else if (clickx <= 0) {
-      pos = Math.floor(0);  
+      pos = Math.floor(0);
     } else {
-      pos = instance.player.duration*(clickx/instance.playbar_width);  
+      pos = instance.player.duration*(clickx/instance.playbar_width);
     }
     instance.player.currentTime = pos;
   };
-  
+
   var formatTimer = function(position) {
     var ft_hours = Math.floor((position / (60 * 60)) %24 );
     var ft_minutes = Math.floor((position / (60) ) % 60 );
@@ -262,14 +262,14 @@ jQuery.fn.videoControls = function() {
     ft_frames = pad(ft_frames);
     var formattedTime = ft_hours +':'+ ft_minutes +':'+ ft_seconds+':'+ft_frames+' (frame: '+ft_gframes+')';
     return formattedTime;
-  };   
-  
+  };
+
   var pad = function(val) {
     if (val < 10) { val = "0" + val; }
     return val;
-  };  
-  
+  };
+
   return $(this).each(function() {
     create(this);
-  });  
+  });
 };
