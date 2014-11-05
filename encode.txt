@@ -1,0 +1,1 @@
+ffmpeg -i 5612-sample3.ts -vf scale=800:450 -c:v libx264 -crf:0 24 -maxrate:0 500k -c:a libvo_aacenc -b:a 96k -movflags +faststart  -f mp4 5612-sample3-proxy.mp4
